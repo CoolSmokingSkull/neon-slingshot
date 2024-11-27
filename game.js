@@ -687,67 +687,93 @@ window.addEventListener('DOMContentLoaded', () => {
         return baseSpeed + speedIncrease;
     }
 
-    // ---------------------------
-    // Drag and Shoot Functionality
-    // ---------------------------
+// ---------------------------
+// Drag and Shoot Functionality
+// ---------------------------
 
-    // Event listeners for mouse and touch events
-    canvas.addEventListener('mousedown', startDrag);
-    canvas.addEventListener('touchstart', startDrag);
+// Add mouse and touch event listeners
+canvas.addEventListener("mousedown", startDrag);
+canvas.addEventListener("touchstart", (e) => startDrag(adaptTouchEvent(e)));
 
-    function startDrag(event) {
-        if (!orb.canShoot) return; // Prevent dragging if orb is not ready
-        event.preventDefault();
-        const pos = getMousePos(event);
-        const dist = Math.hypot(pos.x - orb.x, pos.y - orb.y);
-        if (dist < orb.radius) {
-            orb.isDragging = true;
-            orb.dragStart = { x: pos.x, y: pos.y };
-        }
+canvas.addEventListener("mousemove", drag);
+canvas.addEventListener("touchmove", (e) => drag(adaptTouchEvent(e)));
+
+canvas.addEventListener("mouseup", endDrag);
+canvas.addEventListener("touchend", (e) => endDrag(adaptTouchEvent(e)));
+
+// Utility function to adapt touch events to mouse-like events
+function adaptTouchEvent(e) {
+    if (e.touches && e.touches[0]) {
+        const touch = e.touches[0];
+        return { clientX: touch.clientX, clientY: touch.clientY, preventDefault: e.preventDefault.bind(e) };
     }
+    return e;
+}
 
-    canvas.addEventListener('mousemove', drag);
-    canvas.addEventListener('touchmove', drag);
+// Function to get the mouse/touch position
+function getMousePos(event) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+    };
+}
 
-    function drag(event) {
-        if (!orb.isDragging) return;
-        event.preventDefault();
-        const pos = getMousePos(event);
-        // Limit the drag distance to a maximum (to simulate slingshot band limit)
-        const maxDragDistance = 100;
-        const dx = pos.x - startingLine.x;
-        const dy = pos.y - startingLine.y;
-        const distance = Math.hypot(dx, dy);
-        if (distance > maxDragDistance) {
-            const angle = Math.atan2(dy, dx);
-            orb.x = startingLine.x + maxDragDistance * Math.cos(angle);
-            orb.y = startingLine.y + maxDragDistance * Math.sin(angle);
-        } else {
-            orb.x = pos.x;
-            orb.y = pos.y;
-        }
+// Start dragging the orb
+function startDrag(event) {
+    if (!orb.canShoot) return; // Prevent dragging if orb is not ready
+    event.preventDefault();
+    const pos = getMousePos(event);
+    const dist = Math.hypot(pos.x - orb.x, pos.y - orb.y);
+    if (dist < orb.radius) {
+        orb.isDragging = true;
+        orb.dragStart = { x: pos.x, y: pos.y };
     }
+}
 
-    canvas.addEventListener('mouseup', endDrag);
-    canvas.addEventListener('touchend', endDrag);
+// Drag the orb
+function drag(event) {
+    if (!orb.isDragging) return;
+    event.preventDefault();
+    const pos = getMousePos(event);
 
-    function endDrag(event) {
-        if (!orb.isDragging) return;
-        orb.isDragging = false;
-        const pos = getMousePos(event);
-        const dx = startingLine.x - pos.x;
-        const dy = startingLine.y - pos.y;
+    // Limit the drag distance to simulate slingshot band limit
+    const maxDragDistance = 100;
+    const dx = pos.x - startingLine.x;
+    const dy = pos.y - startingLine.y;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance > maxDragDistance) {
         const angle = Math.atan2(dy, dx);
-        const power = Math.min(Math.hypot(dx, dy) / 10, 25); // Adjust power as needed
-        orb.velocity.x = power * Math.cos(angle);
-        orb.velocity.y = power * Math.sin(angle);
-        if (orb.canShoot) {
-            shootSound.currentTime = 0;
-            shootSound.play();
-            orb.canShoot = false;
-            orbActive = true;
-        }
+        orb.x = startingLine.x + maxDragDistance * Math.cos(angle);
+        orb.y = startingLine.y + maxDragDistance * Math.sin(angle);
+    } else {
+        orb.x = pos.x;
+        orb.y = pos.y;
     }
+}
+
+// End dragging and shoot the orb
+function endDrag(event) {
+    if (!orb.isDragging) return;
+    orb.isDragging = false;
+
+    const pos = getMousePos(event);
+    const dx = startingLine.x - pos.x;
+    const dy = startingLine.y - pos.y;
+    const angle = Math.atan2(dy, dx);
+    const power = Math.min(Math.hypot(dx, dy) / 10, 25); // Adjust power as needed
+
+    orb.velocity.x = power * Math.cos(angle);
+    orb.velocity.y = power * Math.sin(angle);
+
+    if (orb.canShoot) {
+        shootSound.currentTime = 0;
+        shootSound.play();
+        orb.canShoot = false;
+        orbActive = true;
+    }
+}
 
     // ---------------------------
     // Utility Functions for Sparkles
