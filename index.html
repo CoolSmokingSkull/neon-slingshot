@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Slingshot</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen">
+        <h1>Neon Slingshot</h1>
+        <button id="start-button">Start Game</button>
+        <button id="change-track-button">Change Track</button>
+    </div>
+
+    <!-- Game Screen -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Scorekeeper -->
+    <div id="scorekeeper">
+        <span id="score">Score: 0</span>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="screen hidden">
+        <h1>Game Over</h1>
+        <p id="game-over-message"></p>
+        <p>Your Score: <span id="final-score">0</span></p>
+        <input type="text" id="player-name" placeholder="Enter your name">
+        <button id="restart-button">Restart Game</button>
+        <p>Take a screenshot!</p>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

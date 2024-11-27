@@ -1,0 +1,197 @@
+/* styles.css */
+
+/* ---------------------------
+   Global Styles
+--------------------------- */
+
+/* Reset default margins and paddings */
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevent scrollbars */
+    background-color: #000; /* Black background for neon effect */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff; /* White text for contrast */
+}
+
+/* ---------------------------
+   Screen Styling
+--------------------------- */
+
+/* General Screen Styling for Start and Game Over Screens */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95); /* Semi-transparent black background */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10; /* Ensure it stays above the canvas */
+}
+
+/* Hide elements with the 'hidden' class */
+.hidden {
+    display: none;
+}
+
+/* ---------------------------
+   Button Styling
+--------------------------- */
+
+/* Style for all buttons */
+button {
+    padding: 15px 30px;
+    margin: 10px;
+    border: none;
+    background: #0ff; /* Cyan background */
+    color: #000; /* Black text */
+    font-size: 1.2em;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+/* Hover effect for buttons */
+button:hover {
+    background: #00d; /* Darker cyan on hover */
+}
+
+/* Active (pressed) effect for buttons */
+button:active {
+    transform: scale(0.95);
+}
+
+/* ---------------------------
+   Canvas Styling
+--------------------------- */
+
+/* Style for the game canvas */
+canvas {
+    display: block;
+    background-color: #000; /* Black background */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ---------------------------
+   Input Styling
+--------------------------- */
+
+/* Style for text inputs */
+input[type="text"] {
+    padding: 10px;
+    margin: 10px;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    width: 200px;
+}
+
+/* ---------------------------
+   Game Over Screen Styling
+--------------------------- */
+
+/* Style for the Game Over title */
+#game-over-screen h1 {
+    font-size: 2.5em;
+    text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; /* Neon pink glow */
+    animation: neonPulse 1.5s infinite alternate;
+}
+
+/* Neon pulse animation for the Game Over title */
+@keyframes neonPulse {
+    from {
+        text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+    }
+    to {
+        text-shadow: 0 0 20px #ff00ff, 0 0 30px #ff00ff;
+    }
+}
+
+/* Style for the Restart button in Game Over screen */
+#game-over-screen button {
+    background: #ff00ff; /* Magenta background */
+    color: #000; /* Black text */
+}
+
+/* Hover effect for the Restart button */
+#game-over-screen button:hover {
+    background: #ff66ff; /* Lighter magenta on hover */
+}
+
+/* Active effect for the Restart button */
+#game-over-screen button:active {
+    transform: scale(0.95);
+}
+
+/* ---------------------------
+   Scorekeeper Styling
+--------------------------- */
+
+/* Style for the scorekeeper container */
+#scorekeeper {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+    background-size: 400% 400%;
+    animation: rainbowBg 10s ease infinite; /* Slow-changing RGB background */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Subtle glow */
+}
+
+/* Style for the score text */
+#scorekeeper #score {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+/* Rainbow background animation for the scorekeeper */
+@keyframes rainbowBg {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ---------------------------
+   Heart Icon Styling
+--------------------------- */
+
+/* Optional: If you want to style the hearts differently or use images */
+/* Currently, hearts are drawn on the canvas via JavaScript */
+
+/* ---------------------------
+   Responsive Design
+--------------------------- */
+
+/* Adjust styles for smaller screens */
+@media (max-width: 600px) {
+    /* Smaller button sizes */
+    button {
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+
+    /* Smaller Game Over title */
+    #game-over-screen h1 {
+        font-size: 2em;
+    }
+
+    /* Wider input fields */
+    #game-over-screen input[type="text"] {
+        width: 80%;
+    }
+
+    /* Smaller score text */
+    #scorekeeper #score {
+        font-size: 1.2em;
+    }
+}
