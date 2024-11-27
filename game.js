@@ -716,7 +716,7 @@ function drag(event) {
     event.preventDefault();
 
     const pos = getPointerPosition(event);
-    const maxDragDistance = 100; // Limit drag distance
+    const maxDragDistance = 150; // Limit drag distance
     const dx = pos.x - startingLine.x;
     const dy = pos.y - startingLine.y;
     const distance = Math.hypot(dx, dy);
@@ -741,7 +741,7 @@ function endDrag(event) {
     const dy = startingLine.y - pos.y;
     const distance = Math.hypot(dx, dy);
 
-    if (distance > 10) { // Ensure enough drag distance for a valid shot
+    if (distance > 20) { // Ensure enough drag distance for a valid shot
         const angle = Math.atan2(dy, dx);
         const power = Math.min(distance / 10, 25); // Cap the power
 
