@@ -686,43 +686,39 @@ window.addEventListener('DOMContentLoaded', () => {
         const speedIncrease = elapsedTime / 10000; // Increase speed every 10 seconds
         return baseSpeed + speedIncrease;
     }
-// Utility function to get pointer position
-function getPointerPosition(event) {
-    if (event.touches && event.touches[0]) {
-        return {
-            x: event.touches[0].clientX,
-            y: event.touches[0].clientY
-        };
-    } else {
-        return {
-            x: event.clientX,
-            y: event.clientY
-        };
-    }
-}
+// Event listeners for mouse and touch events
+canvas.addEventListener('mousedown', startDrag, { passive: false });
+canvas.addEventListener('touchstart', startDrag, { passive: false });
 
-// Unified event handler for starting the drag
+canvas.addEventListener('mousemove', drag, { passive: false });
+canvas.addEventListener('touchmove', drag, { passive: false });
+
+canvas.addEventListener('mouseup', endDrag, { passive: false });
+canvas.addEventListener('touchend', endDrag, { passive: false });
+
 function startDrag(event) {
+    event.preventDefault(); // Prevent default touch gestures
     if (!orb.canShoot) return; // Prevent dragging if orb is not ready
-    event.preventDefault();
+
     const pos = getPointerPosition(event);
     const dist = Math.hypot(pos.x - orb.x, pos.y - orb.y);
+
     if (dist < orb.radius) {
         orb.isDragging = true;
         orb.dragStart = { x: pos.x, y: pos.y };
     }
 }
 
-// Unified event handler for dragging
 function drag(event) {
     if (!orb.isDragging) return;
-    event.preventDefault();
+    event.preventDefault(); // Prevent default touch gestures
+
     const pos = getPointerPosition(event);
-    // Limit the drag distance to a maximum (to simulate slingshot band limit)
-    const maxDragDistance = 100;
+    const maxDragDistance = 100; // Max slingshot band length
     const dx = pos.x - startingLine.x;
     const dy = pos.y - startingLine.y;
     const distance = Math.hypot(dx, dy);
+
     if (distance > maxDragDistance) {
         const angle = Math.atan2(dy, dx);
         orb.x = startingLine.x + maxDragDistance * Math.cos(angle);
@@ -733,17 +729,19 @@ function drag(event) {
     }
 }
 
-// Unified event handler for ending the drag
 function endDrag(event) {
     if (!orb.isDragging) return;
     orb.isDragging = false;
+
     const pos = getPointerPosition(event);
     const dx = startingLine.x - pos.x;
     const dy = startingLine.y - pos.y;
     const angle = Math.atan2(dy, dx);
     const power = Math.min(Math.hypot(dx, dy) / 10, 25); // Adjust power as needed
+
     orb.velocity.x = power * Math.cos(angle);
     orb.velocity.y = power * Math.sin(angle);
+
     if (orb.canShoot) {
         shootSound.currentTime = 0;
         shootSound.play();
@@ -752,16 +750,19 @@ function endDrag(event) {
     }
 }
 
-// Add event listeners for both mouse and touch events
-canvas.addEventListener('mousedown', startDrag);
-canvas.addEventListener('touchstart', startDrag, { passive: false });
-
-canvas.addEventListener('mousemove', drag);
-canvas.addEventListener('touchmove', drag, { passive: false });
-
-canvas.addEventListener('mouseup', endDrag);
-canvas.addEventListener('touchend', endDrag, { passive: false });
-
+function getPointerPosition(event) {
+    if (event.touches && event.touches[0]) {
+        return {
+            x: event.touches[0].clientX,
+            y: event.touches[0].clientY,
+        };
+    } else {
+        return {
+            x: event.clientX,
+            y: event.clientY,
+        };
+    }
+}
     // ---------------------------
     // Utility Functions for Sparkles
     // ---------------------------
