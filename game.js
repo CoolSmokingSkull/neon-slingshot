@@ -686,19 +686,20 @@ window.addEventListener('DOMContentLoaded', () => {
         const speedIncrease = elapsedTime / 10000; // Increase speed every 10 seconds
         return baseSpeed + speedIncrease;
     }
-
 // Event listeners for mouse and touch events
 canvas.addEventListener('mousedown', startDrag);
 canvas.addEventListener('touchstart', startDrag);
+
 canvas.addEventListener('mousemove', drag);
 canvas.addEventListener('touchmove', drag);
+
 canvas.addEventListener('mouseup', endDrag);
 canvas.addEventListener('touchend', endDrag);
 
 function startDrag(event) {
     if (!orb.canShoot) return; // Prevent dragging if orb is not ready
     event.preventDefault();
-    const pos = getMousePos(event);
+    const pos = getPointerPosition(event);
     const dist = Math.hypot(pos.x - orb.x, pos.y - orb.y);
     if (dist < orb.radius) {
         orb.isDragging = true;
@@ -709,8 +710,7 @@ function startDrag(event) {
 function drag(event) {
     if (!orb.isDragging) return;
     event.preventDefault();
-    const pos = getMousePos(event);
-
+    const pos = getPointerPosition(event);
     // Limit the drag distance to a maximum (to simulate slingshot band limit)
     const maxDragDistance = 100;
     const dx = pos.x - startingLine.x;
@@ -729,38 +729,35 @@ function drag(event) {
 function endDrag(event) {
     if (!orb.isDragging) return;
     orb.isDragging = false;
-
-    const pos = getMousePos(event);
+    const pos = getPointerPosition(event);
     const dx = startingLine.x - pos.x;
     const dy = startingLine.y - pos.y;
-    const distance = Math.hypot(dx, dy);
-
-    // If the drag distance is too small, don't shoot
-    if (distance < 10) {
-        resetOrbPosition();
-        return;
-    }
-
     const angle = Math.atan2(dy, dx);
-    const power = Math.min(distance / 10, 25); // Adjust power as needed
+    const power = Math.min(Math.hypot(dx, dy) / 10, 25); // Adjust power as needed
     orb.velocity.x = power * Math.cos(angle);
     orb.velocity.y = power * Math.sin(angle);
-
-    shootSound.currentTime = 0;
-    shootSound.play();
-    orb.canShoot = false; // Prevent re-dragging until orb resets
-    orbActive = true; // Indicate the orb is in motion
+    if (orb.canShoot) {
+        shootSound.currentTime = 0;
+        shootSound.play();
+        orb.canShoot = false;
+        orbActive = true;
+    }
 }
 
-function resetOrbPosition() {
-    // Respawn the orb back to the starting position
-    orb.x = startingLine.x;
-    orb.y = startingLine.y;
-    orb.velocity.x = 0;
-    orb.velocity.y = 0;
-    orb.canShoot = true;
-    orb.isDragging = false;
+function getPointerPosition(event) {
+    if (event.touches && event.touches[0]) {
+        return {
+            x: event.touches[0].clientX,
+            y: event.touches[0].clientY
+        };
+    } else {
+        return {
+            x: event.clientX,
+            y: event.clientY
+        };
+    }
 }
+
 
     // ---------------------------
     // Utility Functions for Sparkles
