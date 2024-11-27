@@ -686,83 +686,88 @@ window.addEventListener('DOMContentLoaded', () => {
         const speedIncrease = elapsedTime / 10000; // Increase speed every 10 seconds
         return baseSpeed + speedIncrease;
     }
-// Event listeners for mouse and touch events
-canvas.addEventListener('mousedown', startDrag, { passive: false });
+// Event listeners for mouse and touch events with passive set to false for touch events
+canvas.addEventListener('mousedown', startDrag);
 canvas.addEventListener('touchstart', startDrag, { passive: false });
 
-canvas.addEventListener('mousemove', drag, { passive: false });
+canvas.addEventListener('mousemove', drag);
 canvas.addEventListener('touchmove', drag, { passive: false });
 
-canvas.addEventListener('mouseup', endDrag, { passive: false });
+canvas.addEventListener('mouseup', endDrag);
 canvas.addEventListener('touchend', endDrag, { passive: false });
 
 function startDrag(event) {
-    event.preventDefault(); // Prevent default touch gestures
+    event.preventDefault(); // Prevent default touch behaviors (e.g., scrolling)
     if (!orb.canShoot) return; // Prevent dragging if orb is not ready
 
-    const pos = getPointerPosition(event);
-    const dist = Math.hypot(pos.x - orb.x, pos.y - orb.y);
+    const pos = getPointerPosition(event); // Get the pointer position
+    const dist = Math.hypot(pos.x - orb.x, pos.y - orb.y); // Calculate distance from orb center
 
     if (dist < orb.radius) {
-        orb.isDragging = true;
-        orb.dragStart = { x: pos.x, y: pos.y };
+        orb.isDragging = true; // Enable dragging
+        orb.dragStart = { x: pos.x, y: pos.y }; // Store initial drag position
     }
 }
 
 function drag(event) {
-    if (!orb.isDragging) return;
-    event.preventDefault(); // Prevent default touch gestures
+    if (!orb.isDragging) return; // Exit if the orb isn't being dragged
+    event.preventDefault(); // Prevent default touch behaviors
 
-    const pos = getPointerPosition(event);
-    const maxDragDistance = 100; // Max slingshot band length
-    const dx = pos.x - startingLine.x;
-    const dy = pos.y - startingLine.y;
-    const distance = Math.hypot(dx, dy);
+    const pos = getPointerPosition(event); // Get the pointer position
+    const maxDragDistance = 100; // Limit drag distance (slingshot band limit)
+    const dx = pos.x - startingLine.x; // Horizontal distance from starting line
+    const dy = pos.y - startingLine.y; // Vertical distance from starting line
+    const distance = Math.hypot(dx, dy); // Calculate the drag distance
 
     if (distance > maxDragDistance) {
-        const angle = Math.atan2(dy, dx);
-        orb.x = startingLine.x + maxDragDistance * Math.cos(angle);
-        orb.y = startingLine.y + maxDragDistance * Math.sin(angle);
+        // If drag distance exceeds limit, adjust position
+        const angle = Math.atan2(dy, dx); // Calculate drag angle
+        orb.x = startingLine.x + maxDragDistance * Math.cos(angle); // Limit x position
+        orb.y = startingLine.y + maxDragDistance * Math.sin(angle); // Limit y position
     } else {
-        orb.x = pos.x;
-        orb.y = pos.y;
+        orb.x = pos.x; // Set x position directly
+        orb.y = pos.y; // Set y position directly
     }
 }
 
 function endDrag(event) {
-    if (!orb.isDragging) return;
-    orb.isDragging = false;
+    if (!orb.isDragging) return; // Exit if the orb wasn't being dragged
+    orb.isDragging = false; // Stop dragging
 
-    const pos = getPointerPosition(event);
-    const dx = startingLine.x - pos.x;
-    const dy = startingLine.y - pos.y;
-    const angle = Math.atan2(dy, dx);
-    const power = Math.min(Math.hypot(dx, dy) / 10, 25); // Adjust power as needed
+    const pos = getPointerPosition(event); // Get the pointer position
+    const dx = startingLine.x - pos.x; // Horizontal release distance
+    const dy = startingLine.y - pos.y; // Vertical release distance
+    const angle = Math.atan2(dy, dx); // Calculate release angle
+    const power = Math.min(Math.hypot(dx, dy) / 10, 25); // Calculate release power
 
+    // Set orb velocity based on release angle and power
     orb.velocity.x = power * Math.cos(angle);
     orb.velocity.y = power * Math.sin(angle);
 
     if (orb.canShoot) {
-        shootSound.currentTime = 0;
-        shootSound.play();
-        orb.canShoot = false;
-        orbActive = true;
+        shootSound.currentTime = 0; // Reset sound
+        shootSound.play(); // Play shoot sound
+        orb.canShoot = false; // Disable shooting until reset
+        orbActive = true; // Set orb as active
     }
 }
 
 function getPointerPosition(event) {
-    if (event.touches && event.touches[0]) {
+    if (event.touches && event.touches.length > 0) {
+        // Touch event
         return {
-            x: event.touches[0].clientX,
-            y: event.touches[0].clientY,
+            x: event.touches[0].clientX - canvas.offsetLeft, // Adjust for canvas offset
+            y: event.touches[0].clientY - canvas.offsetTop,  // Adjust for canvas offset
         };
     } else {
+        // Mouse event
         return {
-            x: event.clientX,
-            y: event.clientY,
+            x: event.clientX - canvas.offsetLeft, // Adjust for canvas offset
+            y: event.clientY - canvas.offsetTop,  // Adjust for canvas offset
         };
     }
 }
+
     // ---------------------------
     // Utility Functions for Sparkles
     // ---------------------------
