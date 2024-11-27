@@ -686,36 +686,41 @@ window.addEventListener('DOMContentLoaded', () => {
         const speedIncrease = elapsedTime / 10000; // Increase speed every 10 seconds
         return baseSpeed + speedIncrease;
     }
-// Event listeners for mouse and touch events
-canvas.addEventListener('mousedown', startDrag);
-canvas.addEventListener('touchstart', startDrag);
+// Enhanced Event listeners for mouse and touch events
+canvas.addEventListener('mousedown', (event) => startDrag(event, 'mouse'));
+canvas.addEventListener('touchstart', (event) => startDrag(event, 'touch'));
 
-canvas.addEventListener('mousemove', drag);
-canvas.addEventListener('touchmove', drag);
+canvas.addEventListener('mousemove', (event) => drag(event, 'mouse'));
+canvas.addEventListener('touchmove', (event) => drag(event, 'touch'));
 
-canvas.addEventListener('mouseup', endDrag);
-canvas.addEventListener('touchend', endDrag);
+canvas.addEventListener('mouseup', (event) => endDrag(event, 'mouse'));
+canvas.addEventListener('touchend', (event) => endDrag(event, 'touch'));
 
-function startDrag(event) {
+// Start dragging the orb
+function startDrag(event, inputType) {
     if (!orb.canShoot) return; // Prevent dragging if orb is not ready
     event.preventDefault();
-    const pos = getPointerPosition(event);
+    const pos = getPointerPosition(event, inputType);
     const dist = Math.hypot(pos.x - orb.x, pos.y - orb.y);
+
     if (dist < orb.radius) {
         orb.isDragging = true;
         orb.dragStart = { x: pos.x, y: pos.y };
     }
 }
 
-function drag(event) {
+// Dragging the orb
+function drag(event, inputType) {
     if (!orb.isDragging) return;
     event.preventDefault();
-    const pos = getPointerPosition(event);
-    // Limit the drag distance to a maximum (to simulate slingshot band limit)
+    const pos = getPointerPosition(event, inputType);
+
+    // Limit the drag distance to a maximum (simulate slingshot band limit)
     const maxDragDistance = 100;
     const dx = pos.x - startingLine.x;
     const dy = pos.y - startingLine.y;
     const distance = Math.hypot(dx, dy);
+
     if (distance > maxDragDistance) {
         const angle = Math.atan2(dy, dx);
         orb.x = startingLine.x + maxDragDistance * Math.cos(angle);
@@ -726,16 +731,20 @@ function drag(event) {
     }
 }
 
-function endDrag(event) {
+// Release the orb
+function endDrag(event, inputType) {
     if (!orb.isDragging) return;
     orb.isDragging = false;
-    const pos = getPointerPosition(event);
+
+    const pos = getPointerPosition(event, inputType);
     const dx = startingLine.x - pos.x;
     const dy = startingLine.y - pos.y;
     const angle = Math.atan2(dy, dx);
     const power = Math.min(Math.hypot(dx, dy) / 10, 25); // Adjust power as needed
+
     orb.velocity.x = power * Math.cos(angle);
     orb.velocity.y = power * Math.sin(angle);
+
     if (orb.canShoot) {
         shootSound.currentTime = 0;
         shootSound.play();
@@ -744,18 +753,20 @@ function endDrag(event) {
     }
 }
 
-function getPointerPosition(event) {
-    if (event.touches && event.touches[0]) {
+// Helper function to get pointer (mouse or touch) position
+function getPointerPosition(event, inputType) {
+    if (inputType === 'touch' && event.touches && event.touches[0]) {
         return {
             x: event.touches[0].clientX,
             y: event.touches[0].clientY
         };
-    } else {
+    } else if (inputType === 'mouse') {
         return {
             x: event.clientX,
             y: event.clientY
         };
     }
+    return { x: 0, y: 0 }; // Fallback in case of invalid input
 }
 
 
@@ -936,3 +947,4 @@ function getPointerPosition(event) {
         **Happy Coding and Game Development!** 🎮✨
     */
 });
+
